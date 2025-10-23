@@ -24,7 +24,7 @@ exports.getMyProducts = async (req, res) => {
   }
 };
 
-// Obter produto por ID e incrementar visualizações (sem duplicados)
+// Obter produto por ID e incrementar visualizações
 exports.getProductByID = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate(
@@ -33,7 +33,6 @@ exports.getProductByID = async (req, res) => {
     );
     if (!product) return res.status(404).json({ error: "Produto não encontrado" });
 
-    // Identificador do visitante
     const visitorId = req.user?.id || `guest:${req.ip}`;
     const isOwner = req.user?.id && req.user.id === product.user._id.toString();
 
@@ -95,7 +94,7 @@ exports.createProduct = async (req, res) => {
   }
 };
 
-// Atualizar produto
+// **Atualizar produto com suporte a novas imagens**
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -103,8 +102,18 @@ exports.updateProduct = async (req, res) => {
     if (product.user.toString() !== req.user.id)
       return res.status(403).json({ error: "Não autorizado a atualizar este produto" });
 
-    Object.assign(product, req.body);
+    // Campos do corpo
+    const updateFields = { ...req.body };
+
+    // Se houver imagens novas enviadas via FormData
+    if (req.files && req.files.length > 0) {
+      const novasImagens = req.files.map(file => file.path || file.url); // depende do upload
+      updateFields.imagens = [...(product.imagens || []), ...novasImagens];
+    }
+
+    Object.assign(product, updateFields);
     await product.save();
+
     res.json({ message: "Produto atualizado com sucesso", product });
   } catch (error) {
     console.error("Erro ao atualizar produto:", error);

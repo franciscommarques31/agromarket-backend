@@ -1,4 +1,3 @@
-// routes/uploadRoutes.js
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
@@ -20,24 +19,25 @@ const streamUpload = (buffer, filename) => {
       }
     );
 
-    // Converte o buffer em stream e envia
     const readable = Readable.from(buffer);
     readable.pipe(uploadStream);
   });
 };
 
-// Rota de upload
-router.post("/", upload.single("image"), async (req, res) => {
+// Rota de upload de **uma ou várias imagens**
+router.post("/", upload.array("imagens", 10), async (req, res) => {
   try {
-    if (!req.file) {
+    if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "Nenhum ficheiro enviado" });
     }
 
-    console.log("Recebendo upload...");
-    console.log("Ficheiro recebido:", req.file);
+    const uploadedFiles = [];
+    for (const file of req.files) {
+      const result = await streamUpload(file.buffer, file.originalname);
+      uploadedFiles.push(result.secure_url);
+    }
 
-    const result = await streamUpload(req.file.buffer, req.file.originalname);
-    res.json({ url: result.secure_url });
+    res.json({ urls: uploadedFiles });
   } catch (error) {
     console.error("Erro ao fazer upload:", error);
     res.status(500).json({ error: "Erro ao fazer upload" });
