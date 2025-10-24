@@ -18,12 +18,6 @@ connectDB();
 
 app.use(express.json());
 
-
-app.use(cors({
-  origin: ["http://localhost:5175", "http://localhost:5174"],
-  credentials: true
-}));
-
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/upload", require("./routes/uploadRoutes"));
@@ -34,7 +28,6 @@ app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => res.send("🚀 Servidor a correr com MongoDB!"));
 
-app.listen(PORT, () => console.log(`Servidor a correr na porta ${PORT}`));
 
 if (require.main == module){
   app.listen(PORT, () => console.log(`Servidor a correr na porta ${PORT}`));
