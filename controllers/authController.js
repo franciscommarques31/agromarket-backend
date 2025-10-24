@@ -113,7 +113,8 @@ exports.login = async (req, res) => {
         country: user.country,
         phone: user.phone,
         isCompany: user.isCompany,
-        companyName: user.companyName
+        companyName: user.companyName,
+        isAdmin: user.isAdmin
       }
     });
 
@@ -167,7 +168,9 @@ exports.updateProfile = async (req, res) => {
         country: user.country,
         phone: user.phone,
         isCompany: user.isCompany,
-        companyName: user.companyName
+        companyName: user.companyName,
+        isAdmin: user.isAdmin  // <-- ADICIONA ISTO
+        
       }
     });
   } catch (error) {

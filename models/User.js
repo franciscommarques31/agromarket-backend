@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema(
     isCompany: { type: Boolean, default: false },
     companyName: { type: String },
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    isAdmin: { type: Boolean, default: false } // <-- novo
   },
   { timestamps: true }
 );
