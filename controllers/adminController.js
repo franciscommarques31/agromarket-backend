@@ -1,11 +1,10 @@
-// controllers/adminController.js
 const User = require("../models/User");
 const Product = require("../models/product");
 
-// ✅ Listar todos os utilizadores
+// 🟢 Listar todos os utilizadores
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password"); // não enviar passwords
+    const users = await User.find().select("-password");
     res.json(users);
   } catch (error) {
     console.error("Erro ao listar utilizadores:", error);
@@ -13,16 +12,17 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// ✅ Atualizar utilizador
+// 🟢 Atualizar utilizador
 exports.updateUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: "Utilizador não encontrado" });
 
     Object.assign(user, req.body);
+
+    // 🟢 Password — não fazer hash manual
     if (req.body.password) {
-      const bcrypt = require("bcrypt");
-      user.password = await bcrypt.hash(req.body.password, 10);
+      user.password = req.body.password; // o pre("save") faz o hash
     }
 
     await user.save();
@@ -33,7 +33,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// ✅ Apagar utilizador
+// 🟢 Apagar utilizador
 exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -47,7 +47,7 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// ✅ Listar todos os produtos
+// 🟢 Listar todos os produtos
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().populate("user", "name surname email");
@@ -58,7 +58,7 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
-// ✅ Atualizar produto
+// 🟢 Atualizar produto
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -73,7 +73,7 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// ✅ Apagar produto
+// 🟢 Apagar produto
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);

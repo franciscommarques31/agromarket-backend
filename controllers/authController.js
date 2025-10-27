@@ -2,8 +2,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
 
-
-// Gerar token JWT
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id },
@@ -12,7 +10,7 @@ const generateToken = (user) => {
   );
 };
 
-// 📌 Registo
+// 🟢 Registo
 exports.register = async (req, res) => {
   try {
     const {
@@ -37,27 +35,26 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: "O nome da empresa é obrigatório se for empresa." });
     }
 
-    //-------------------------Validação da data de nascimento---------------------
-
-    if (!birthDate){
-      return res.status(400).json({error:"A data de nascimento é obrigatória"});
+    // 🧾 Validação da data de nascimento
+    if (!birthDate) {
+      return res.status(400).json({ error: "A data de nascimento é obrigatória" });
     }
 
     const birthDateObj = new Date(birthDate);
     const today = new Date();
     let age = today.getFullYear() - birthDateObj.getFullYear();
     const m = today.getMonth() - birthDateObj.getMonth();
-    if(m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) age--;
+    if (m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) age--;
 
     if (age < 18 || age > 130) {
-      return res.status(400).json({error:"A idade deve ser entre os 18 e os 130 anos de idade."})
+      return res.status(400).json({ error: "A idade deve ser entre 18 e 130 anos." });
     }
 
     const newUser = await User.create({
       name,
       surname,
       email,
-      password,
+      password, // ✅ o pre("save") vai fazer o hash
       birthDate,
       city,
       country,
@@ -89,7 +86,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// 📌 Login
+// 🟢 Login
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -117,14 +114,13 @@ exports.login = async (req, res) => {
         isAdmin: user.isAdmin
       }
     });
-
   } catch (error) {
     console.error("Erro no login:", error);
     res.status(500).json({ error: "Erro ao fazer login" });
   }
 };
 
-// 📌 Atualizar perfil (autenticado)
+// 🟢 Atualizar perfil (autenticado)
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -133,7 +129,7 @@ exports.updateProfile = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: "Utilizador não encontrado" });
 
-    // Atualizar dados
+    // Atualizar dados básicos
     if (name) user.name = name;
     if (surname) user.surname = surname;
     if (city) user.city = city;
@@ -149,9 +145,9 @@ exports.updateProfile = async (req, res) => {
       user.companyName = companyName || null;
     }
 
-    // Password
+    // 🟢 Password — sem hash manual
     if (password) {
-      user.password = await bcrypt.hash(password, 10);
+      user.password = password; // o pre("save") trata do hash
     }
 
     await user.save();
@@ -169,8 +165,7 @@ exports.updateProfile = async (req, res) => {
         phone: user.phone,
         isCompany: user.isCompany,
         companyName: user.companyName,
-        isAdmin: user.isAdmin  // <-- ADICIONA ISTO
-        
+        isAdmin: user.isAdmin
       }
     });
   } catch (error) {
@@ -179,7 +174,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// 📌 Obter dados do utilizador logado
+// 🟢 Obter dados do utilizador logado
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -191,7 +186,7 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// 📌 Apagar conta (autenticado)
+// 🟢 Apagar conta
 exports.deleteAccount = async (req, res) => {
   try {
     const userId = req.user.id;
