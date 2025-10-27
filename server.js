@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: ['http://localhost:5174', 'https://agromarket-frontend-eight.vercel.app']
+  origin: ['http://localhost:5173', 'https://agromarket-frontend-eight.vercel.app']
 }));
 
 connectDB();
