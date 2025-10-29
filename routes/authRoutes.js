@@ -7,6 +7,10 @@ const authMiddleware = require("../middleware/authMiddleware");
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 
+// Esqueci / Redefinir password
+router.post("/forgot-password", authController.forgotPassword);
+router.post("/reset-password/:token", authController.resetPassword);
+
 // Perfil (autenticado)
 router.put("/update-profile", authMiddleware, authController.updateProfile);
 router.get("/me", authMiddleware, authController.getMe);

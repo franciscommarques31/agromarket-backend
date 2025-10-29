@@ -14,7 +14,11 @@ const userSchema = new mongoose.Schema(
     isCompany: { type: Boolean, default: false },
     companyName: { type: String },
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
-    isAdmin: { type: Boolean, default: false } // <-- novo
+    isAdmin: { type: Boolean, default: false },
+
+    // 🔹 Campos para reset de password
+    resetPasswordToken: String,
+    resetPasswordExpire: Date
   },
   { timestamps: true }
 );

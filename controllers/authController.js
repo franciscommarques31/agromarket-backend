@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto"); // 🔹 Import necessário
 const User = require("../models/User");
+const { sendResetPasswordEmail } = require("../utils/email");
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -35,7 +37,6 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: "O nome da empresa é obrigatório se for empresa." });
     }
 
-    // 🧾 Validação da data de nascimento
     if (!birthDate) {
       return res.status(400).json({ error: "A data de nascimento é obrigatória" });
     }
@@ -54,7 +55,7 @@ exports.register = async (req, res) => {
       name,
       surname,
       email,
-      password, // ✅ o pre("save") vai fazer o hash
+      password,
       birthDate,
       city,
       country,
@@ -120,7 +121,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// 🟢 Atualizar perfil (autenticado)
+// 🟢 Atualizar perfil
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -129,26 +130,19 @@ exports.updateProfile = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: "Utilizador não encontrado" });
 
-    // Atualizar dados básicos
     if (name) user.name = name;
     if (surname) user.surname = surname;
     if (city) user.city = city;
     if (country) user.country = country;
     if (phone) user.phone = phone;
 
-    // Empresa
     if (typeof isCompany !== "undefined") {
       user.isCompany = isCompany;
-      if (isCompany && !companyName) {
-        return res.status(400).json({ error: "O nome da empresa é obrigatório se for empresa." });
-      }
+      if (isCompany && !companyName) return res.status(400).json({ error: "O nome da empresa é obrigatório se for empresa." });
       user.companyName = companyName || null;
     }
 
-    // 🟢 Password — sem hash manual
-    if (password) {
-      user.password = password; // o pre("save") trata do hash
-    }
+    if (password) user.password = password;
 
     await user.save();
 
@@ -198,5 +192,54 @@ exports.deleteAccount = async (req, res) => {
   } catch (error) {
     console.error("Erro ao apagar conta:", error);
     res.status(500).json({ error: "Erro ao apagar conta" });
+  }
+};
+
+// 🔹 Esqueci a password
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ error: "Email não encontrado" });
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expire = Date.now() + 3600000; // 1 hora
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpire = expire;
+    await user.save();
+
+    // 🔹 Depuração: comentar se quiser testar sem email
+    console.log("Token gerado:", token);
+    await sendResetPasswordEmail(user, token);
+
+    res.json({ message: "Email de redefinição enviado" });
+  } catch (error) {
+    console.error("Erro no forgotPassword:", error);
+    res.status(500).json({ error: error.message || "Erro ao enviar email de redefinição" });
+  }
+};
+
+// 🔹 Redefinir password
+exports.resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpire: { $gt: Date.now() }
+    });
+
+    if (!user) return res.status(400).json({ error: "Token inválido ou expirado" });
+
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+
+    res.json({ message: "Password redefinida com sucesso" });
+  } catch (error) {
+    console.error("Erro no resetPassword:", error);
+    res.status(500).json({ error: "Erro ao redefinir password" });
   }
 };
