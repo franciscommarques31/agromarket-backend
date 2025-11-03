@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const crypto = require("crypto"); // 🔹 Import necessário
+const crypto = require("crypto");
 const User = require("../models/User");
 const { sendResetPasswordEmail } = require("../utils/email");
 
@@ -12,7 +12,7 @@ const generateToken = (user) => {
   );
 };
 
-// 🟢 Registo
+// 🟢 Registo (empresa removida)
 exports.register = async (req, res) => {
   try {
     const {
@@ -24,17 +24,11 @@ exports.register = async (req, res) => {
       city,
       country,
       phone,
-      isCompany,
-      companyName
     } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "Email já registado" });
-    }
-
-    if (isCompany && !companyName) {
-      return res.status(400).json({ error: "O nome da empresa é obrigatório se for empresa." });
     }
 
     if (!birthDate) {
@@ -60,8 +54,6 @@ exports.register = async (req, res) => {
       city,
       country,
       phone,
-      isCompany: isCompany || false,
-      companyName: companyName || null
     });
 
     res.status(201).json({
@@ -76,8 +68,6 @@ exports.register = async (req, res) => {
         city: newUser.city,
         country: newUser.country,
         phone: newUser.phone,
-        isCompany: newUser.isCompany,
-        companyName: newUser.companyName
       }
     });
 
@@ -87,7 +77,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// 🟢 Login
+// 🟢 Login (empresa removida)
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -110,8 +100,6 @@ exports.login = async (req, res) => {
         city: user.city,
         country: user.country,
         phone: user.phone,
-        isCompany: user.isCompany,
-        companyName: user.companyName,
         isAdmin: user.isAdmin
       }
     });
@@ -121,11 +109,11 @@ exports.login = async (req, res) => {
   }
 };
 
-// 🟢 Atualizar perfil
+// 🟢 Atualizar perfil (empresa removida)
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { name, surname, password, city, country, phone, isCompany, companyName } = req.body;
+    const { name, surname, password, city, country, phone } = req.body;
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: "Utilizador não encontrado" });
@@ -135,12 +123,6 @@ exports.updateProfile = async (req, res) => {
     if (city) user.city = city;
     if (country) user.country = country;
     if (phone) user.phone = phone;
-
-    if (typeof isCompany !== "undefined") {
-      user.isCompany = isCompany;
-      if (isCompany && !companyName) return res.status(400).json({ error: "O nome da empresa é obrigatório se for empresa." });
-      user.companyName = companyName || null;
-    }
 
     if (password) user.password = password;
 
@@ -157,8 +139,6 @@ exports.updateProfile = async (req, res) => {
         city: user.city,
         country: user.country,
         phone: user.phone,
-        isCompany: user.isCompany,
-        companyName: user.companyName,
         isAdmin: user.isAdmin
       }
     });
@@ -168,7 +148,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// 🟢 Obter dados do utilizador logado
+// 🟢 O resto fica 100% igual
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -180,7 +160,6 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// 🟢 Apagar conta
 exports.deleteAccount = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -195,7 +174,6 @@ exports.deleteAccount = async (req, res) => {
   }
 };
 
-// 🔹 Esqueci a password
 exports.forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
@@ -203,13 +181,12 @@ exports.forgotPassword = async (req, res) => {
     if (!user) return res.status(404).json({ error: "Email não encontrado" });
 
     const token = crypto.randomBytes(32).toString("hex");
-    const expire = Date.now() + 3600000; // 1 hora
+    const expire = Date.now() + 3600000;
 
     user.resetPasswordToken = token;
     user.resetPasswordExpire = expire;
     await user.save();
 
-    // 🔹 Depuração: comentar se quiser testar sem email
     console.log("Token gerado:", token);
     await sendResetPasswordEmail(user, token);
 
@@ -220,7 +197,6 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// 🔹 Redefinir password
 exports.resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;

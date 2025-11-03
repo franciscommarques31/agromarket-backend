@@ -11,8 +11,7 @@ const userSchema = new mongoose.Schema(
     city: { type: String },
     country: { type: String },
     phone: { type: String },
-    isCompany: { type: Boolean, default: false },
-    companyName: { type: String },
+
     favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
     isAdmin: { type: Boolean, default: false },
 
@@ -29,4 +28,5 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-module.exports = mongoose.models.User || mongoose.model("User", userSchema);
+module.exports =
+  mongoose.models.User || mongoose.model("User", userSchema);
