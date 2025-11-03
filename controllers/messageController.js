@@ -1,7 +1,7 @@
 const Message = require("../models/Message");
 const Product = require("../models/product");
 
-// ✅ Todas as conversas do utilizador (enviadas e recebidas)
+// ✅ Todas as conversas do utilizador (sem duplicar)
 exports.getUserConversations = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -18,7 +18,23 @@ exports.getUserConversations = async (req, res) => {
       })
       .sort({ createdAt: -1 });
 
-    res.json(messages);
+    const uniqueConversations = [];
+    const seen = new Set();
+
+    messages.forEach((msg) => {
+      if (!msg.product || !msg.product._id) return;
+
+      const id1 = `${msg.product._id}-${msg.sender._id}-${msg.recipient._id}`;
+      const id2 = `${msg.product._id}-${msg.recipient._id}-${msg.sender._id}`;
+
+      if (!seen.has(id1) && !seen.has(id2)) {
+        seen.add(id1);
+        seen.add(id2);
+        uniqueConversations.push(msg);
+      }
+    });
+
+    res.json(uniqueConversations);
   } catch (error) {
     console.error("Erro ao obter conversas do utilizador:", error);
     res.status(500).json({ error: "Erro ao obter conversas" });
@@ -41,7 +57,6 @@ exports.addMessage = async (req, res) => {
       content,
     });
 
-    // Popular o message antes de enviar
     const populatedMessage = await Message.findById(message._id)
       .populate("sender", "name surname email")
       .populate("recipient", "name surname email")
@@ -108,5 +123,32 @@ exports.getAllMessages = async (req, res) => {
   } catch (error) {
     console.error("Erro ao obter todas mensagens:", error);
     res.status(500).json({ error: "Erro ao obter mensagens" });
+  }
+};
+
+
+// ✅ Remover uma conversa entre dois utilizadores referente a um produto
+exports.deleteConversation = async (req, res) => {
+  try {
+    const { productId, otherUserId } = req.params;
+    const userId = req.user.id;
+
+    const result = await Message.deleteMany({
+      product: productId,
+      $or: [
+        { sender: userId, recipient: otherUserId },
+        { sender: otherUserId, recipient: userId },
+      ],
+    });
+
+    res.json({
+      success: true,
+      deletedCount: result.deletedCount,
+      message: "Conversa eliminada com sucesso",
+    });
+
+  } catch (error) {
+    console.error("Erro ao eliminar conversa:", error);
+    res.status(500).json({ error: "Erro ao eliminar conversa" });
   }
 };
