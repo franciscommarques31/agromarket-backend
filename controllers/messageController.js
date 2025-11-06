@@ -1,7 +1,7 @@
 const Message = require("../models/Message");
 const Product = require("../models/product");
 
-// ✅ Todas as conversas do utilizador (sem duplicar)
+
 exports.getUserConversations = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -41,7 +41,7 @@ exports.getUserConversations = async (req, res) => {
   }
 };
 
-// ✅ Enviar mensagem
+
 exports.addMessage = async (req, res) => {
   try {
     const { recipientId, productId, content } = req.body;
@@ -73,7 +73,7 @@ exports.addMessage = async (req, res) => {
   }
 };
 
-// ✅ Mensagens do utilizador para um produto específico
+
 exports.getUserMessages = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -98,7 +98,7 @@ exports.getUserMessages = async (req, res) => {
   }
 };
 
-// ✅ Todas as mensagens de um produto (para o proprietário)
+
 exports.getAllMessages = async (req, res) => {
   try {
     const { productId } = req.params;
@@ -127,7 +127,7 @@ exports.getAllMessages = async (req, res) => {
 };
 
 
-// ✅ Remover uma conversa entre dois utilizadores referente a um produto
+
 exports.deleteConversation = async (req, res) => {
   try {
     const { productId, otherUserId } = req.params;

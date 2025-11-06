@@ -1,7 +1,7 @@
 const Product = require("../models/product");
 const User = require("../models/User");
 
-// Listar todos os produtos (público)
+
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().populate("user", "name surname email");
@@ -12,7 +12,7 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
-// Listar produtos do utilizador logado
+
 exports.getMyProducts = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -24,7 +24,7 @@ exports.getMyProducts = async (req, res) => {
   }
 };
 
-// Obter produto por ID e incrementar visualizações (sem duplicados)
+// Obter produto por ID e incrementar visualizações
 exports.getProductByID = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id).populate(
@@ -33,7 +33,7 @@ exports.getProductByID = async (req, res) => {
     );
     if (!product) return res.status(404).json({ error: "Produto não encontrado" });
 
-    // Identificador do visitante
+   
     const visitorId = req.user?.id || `guest:${req.ip}`;
     const isOwner = req.user?.id && req.user.id === product.user._id.toString();
 
@@ -155,7 +155,7 @@ exports.searchProducts = async (req, res) => {
   }
 };
 
-// Toggle favorito
+
 exports.toggleFavorite = async (req, res) => {
   try {
     const userId = req.user.id;

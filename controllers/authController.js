@@ -12,7 +12,7 @@ const generateToken = (user) => {
   );
 };
 
-// 🟢 Registo (empresa removida)
+//Registo
 exports.register = async (req, res) => {
   try {
     const {
@@ -77,7 +77,7 @@ exports.register = async (req, res) => {
   }
 };
 
-// 🟢 Login (empresa removida)
+//Login
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -109,7 +109,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// 🟢 Atualizar perfil (empresa removida)
+
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -148,7 +148,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// 🟢 O resto fica 100% igual
+
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");

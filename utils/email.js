@@ -1,11 +1,11 @@
 const nodemailer = require("nodemailer");
 
-// Escolhe URL do frontend consoante o ambiente
+
 const FRONTEND_URL = process.env.NODE_ENV === "production"
   ? process.env.FRONTEND_URL_PROD
   : process.env.FRONTEND_URL_DEV;
 
-// Configuração do Nodemailer com Mailtrap
+
 const transporter = nodemailer.createTransport({
   host: process.env.MAILTRAP_HOST,
   port: process.env.MAILTRAP_PORT,
@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Função para enviar email
+
 const sendEmail = async ({ to, subject, html }) => {
   try {
     await transporter.sendMail({
@@ -30,15 +30,15 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
-// Função para enviar email de reset de password
+
 const sendResetPasswordEmail = async (user, token) => {
   const resetUrl = `${FRONTEND_URL}/reset-password/${token}`;
   const html = `
     <p>Olá ${user.name},</p>
-    <p>Recebemos um pedido para redefinir a tua password.</p>
+    <p>Recebemos um pedido para redefinir a sua password.</p>
     <p>Clica no link abaixo para criar uma nova password:</p>
     <a href="${resetUrl}">Redefinir Password</a>
-    <p>Se não pediste esta alteração, ignora este email.</p>
+    <p>Se não pediste para alterar a password, ignora este email.</p>
   `;
   await sendEmail({ to: user.email, subject: "Redefinição de Password", html });
 };

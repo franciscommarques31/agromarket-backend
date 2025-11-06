@@ -23,8 +23,8 @@ const productSchema = new mongoose.Schema(
       enum: ["novo", "usado"],
       required: true,
     },
-    views: { type: Number, default: 0 }, // contador de visualizações
-    viewedBy: [{ type: String }], // lista de IDs ou IPs para controlar views únicas
+    views: { type: Number, default: 0 },
+    viewedBy: [{ type: String }],
   },
   { timestamps: true }
 );

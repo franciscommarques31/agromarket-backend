@@ -1,15 +1,14 @@
-// routes/uploadRoutes.js
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const cloudinary = require("../config/cloudinaryConfig");
 const { Readable } = require("stream");
 
-// Configuração do multer (memória)
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// Função para enviar buffer para Cloudinary
+
 const streamUpload = (buffer, filename) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
@@ -20,20 +19,20 @@ const streamUpload = (buffer, filename) => {
       }
     );
 
-    // Converte o buffer em stream e envia
+    
     const readable = Readable.from(buffer);
     readable.pipe(uploadStream);
   });
 };
 
-// Rota de upload
+
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: "Nenhum ficheiro enviado" });
     }
 
-    console.log("Recebendo upload...");
+    console.log("A enviar ficheiro...");
     console.log("Ficheiro recebido:", req.file);
 
     const result = await streamUpload(req.file.buffer, req.file.originalname);

@@ -1,10 +1,10 @@
-// favoritesRoutes.js
+
 const express = require("express");
 const router = express.Router();
 const authMiddleware = require("../middleware/authMiddleware");
 const User = require("../models/User");
 
-// Buscar favoritos
+
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).populate("favorites");
@@ -15,7 +15,7 @@ router.get("/", authMiddleware, async (req, res) => {
   }
 });
 
-// Adicionar/remover favorito
+
 router.post("/:productId", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);

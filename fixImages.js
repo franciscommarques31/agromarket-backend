@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Product = require("../models/Product"); // ajusta se o caminho for diferente
+const Product = require("../models/Product");
 require("dotenv").config();
 
 const connectDB = async () => {
@@ -15,10 +15,10 @@ const connectDB = async () => {
 const fixImages = async () => {
   await connectDB();
 
-  // Substitui pelo _id do documento que queres corrigir
+
   const productId = "68dbd7af8cad4c636e02dd1d";
 
-  // Corrige o array de imagens
+
   await Product.findByIdAndUpdate(productId, {
     imagens: ["/assets/trator.jpg"]
   });

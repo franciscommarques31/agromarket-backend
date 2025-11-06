@@ -10,12 +10,12 @@ exports.optionalAuth = async (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = await User.findById(decoded.id);
       } catch (err) {
-        // Token inválido ou expirado, apenas ignora
+  
       }
     }
   }
 
-  // Se não há user, cria um visitorId temporário
+
   if (!req.user) {
     if (!req.cookies?.tempVisitorId) {
       const tempId = `guest:${Math.random().toString(36).substring(2, 12)}`;

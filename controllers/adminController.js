@@ -20,9 +20,9 @@ exports.updateUser = async (req, res) => {
 
     Object.assign(user, req.body);
 
-    // 🟢 Password — não fazer hash manual
+  
     if (req.body.password) {
-      user.password = req.body.password; // o pre("save") faz o hash
+      user.password = req.body.password; 
     }
 
     await user.save();
@@ -33,7 +33,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// 🟢 Apagar utilizador
+//Apagar utilizador
 exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -47,18 +47,18 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-// 🟢 Listar todos os produtos
+
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.find().populate("user", "name surname email");
     res.json(products);
   } catch (error) {
     console.error("Erro ao listar produtos:", error);
-    res.status(500).json({ error: "Erro ao listar produtos" });
+    res.status(500).json({ error: "Erro ao listar os produtos" });
   }
 };
 
-// 🟢 Atualizar produto
+
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -73,7 +73,7 @@ exports.updateProduct = async (req, res) => {
   }
 };
 
-// 🟢 Apagar produto
+
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
