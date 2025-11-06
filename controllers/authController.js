@@ -42,7 +42,7 @@ exports.register = async (req, res) => {
     if (m < 0 || (m === 0 && today.getDate() < birthDateObj.getDate())) age--;
 
     if (age < 18 || age > 130) {
-      return res.status(400).json({ error: "A idade deve ser entre 18 e 130 anos." });
+      return res.status(400).json({ error: "A continuação do registo não é permitida para menores de 18 anos." });
     }
 
     const newUser = await User.create({
