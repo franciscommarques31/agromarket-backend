@@ -9,17 +9,21 @@ const adminRoutes = require("./routes/adminRoutes");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Configuração CORS
 app.use(cors({
   origin: [
-    "http://localhost:5173",
-    "https://agromarket-frontend-eight.vercel.app"
-  ]
+    "https://agromarket-frontend-eight.vercel.app",
+    "http://localhost:5173"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
 }));
 
 connectDB();
 
 app.use(express.json());
 
+// Rotas
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/upload", require("./routes/uploadRoutes"));
