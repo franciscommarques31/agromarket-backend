@@ -1,25 +1,26 @@
-require("dotenv").config(); // ⬅️ PRIMEIRA LINHA
-
+require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
 const cors = require("cors");
+const serverless = require("serverless-http"); // ⬅️ Necessário para Vercel
+
 const favoritesRoutes = require("./routes/favoritesRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Configuração CORS
+// Conexão MongoDB
+connectDB();
+
+// CORS
 app.use(cors({
   origin: [
     "https://agromarket-frontend-eight.vercel.app",
     "http://localhost:5173"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
   credentials: true
 }));
-
-connectDB();
 
 app.use(express.json());
 
@@ -33,10 +34,5 @@ app.use("/api/admin", adminRoutes);
 
 app.get("/", (req, res) => res.send("🚀 Servidor a correr com MongoDB!"));
 
-if (require.main === module) {
-  app.listen(PORT, () =>
-    console.log(`Servidor a correr na porta ${PORT}`)
-  );
-}
-
-module.exports = app;
+// Export para Vercel Serverless
+module.exports = serverless(app);
