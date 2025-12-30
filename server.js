@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
-const cors = require("cors");
 const serverless = require("serverless-http");
 
 const favoritesRoutes = require("./routes/favoritesRoutes");
@@ -12,11 +11,11 @@ const app = express();
 // Conexão MongoDB
 connectDB();
 
-// CORS: middleware manual para serverless
+// Middleware CORS compatível com Vercel Serverless
 app.use((req, res, next) => {
   const allowedOrigins = [
-    "https://agromarket-frontend-eight.vercel.app",
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "https://agromarket-frontend-eight.vercel.app"
   ];
 
   const origin = req.headers.origin;
@@ -28,7 +27,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");
 
-  // Permitir OPTIONS para preflight
+  // Preflight request
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
